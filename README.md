@@ -107,7 +107,7 @@ Methods are generated based on the role model configured. In the example above t
 * user.**roles_as** (type) - Get roles of object by type (:identifiers, :ids, :objects)
 * user.**has_role?** (role) - Check if object has role (can be a role identifier as a symbol, a role id, or a role object and returns True/False)
 * user.**has_roles?** (roles) - Check if object has all roles (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False)
-* user.**has_at_least_one_?** (roles) - Check if object has at least one role (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False)
+* user.**has_at_least_one_role?** (roles) - Check if object has at least one role (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False)
 
 * user.**roles_and_descendents_as** (type)- Get roles and descendent roles of object by type (:identifiers, :ids, :objects)
 * user.**has_role_by_descendents?** (role) - Check if object has role or a ancestors ancestor role (can be a role identifier as a symbol, a role id, or a role object and returns True/False)
