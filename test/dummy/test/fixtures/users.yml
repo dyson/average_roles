@@ -1,0 +1,16 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+administrator:
+  name: Administrator
+
+user:
+  name: User
+
+guest:
+  name: Guest
+
+no_role:
+  name: No Roles
+
+super_user:
+  name: Super User

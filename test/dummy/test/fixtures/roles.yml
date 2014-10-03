@@ -1,0 +1,37 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+administrator:
+  name: Administrator
+  identifier: administrator
+  description: Administrator role
+  users: administrator
+  active: true
+
+user:
+  name: User
+  identifier: user
+  description: User role
+  parent: administrator
+  users: user
+  active: true
+
+guest:
+  name: Guest
+  identifier: guest
+  description: Guest role
+  parent: user
+  users: guest, user
+  active: true
+
+no_user:
+  name: No User
+  identifier: no_user
+  description: No users have this role
+  active: true
+
+super_user:
+  name: Super User
+  identifier: super_user
+  description: Super user role that will always return true when checking roles for the user that has this role
+  users: super_user
+  active: true
