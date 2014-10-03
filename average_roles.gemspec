@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email       = ["dysonsimmons@gmail.com"]
   s.homepage    = "https://github.com/dyson/average_roles"
   s.summary     = "Rails 4 roles based on a tree structure."
-  s.description = "Add roles to models using postgres_tree. It's average because it doesn't do much else."
+  s.description = "Add roles to models with tree structure via postgres_tree. It's average because it doesn't do much else."
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
