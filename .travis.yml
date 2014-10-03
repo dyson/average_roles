@@ -1,0 +1,18 @@
+language: ruby
+cache: bundler
+
+rvm:
+  - 2.0.0
+
+script: 'bundle exec rake test'
+
+notifications:
+  email:
+    recipients:
+      - dysonsimmons@gmail.com
+    on_failure: change
+    on_success: never
+
+before_script:
+  - cp test/dummy/config/database.yml.travis test/dummy/config/database.yml
+  - psql -c 'create database travis_ci_test;' -U postgres
