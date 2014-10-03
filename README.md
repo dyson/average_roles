@@ -116,7 +116,7 @@ Methods are generated based on the role model configured. In the example above t
 
 #### Super User
 
-If config.super_user is not set to nil and is set to a roles identifies as a symbol, then all of the has methods will always return true for a user with this role. For example, if you have a :super_user role, and assign it to a user, that user does not need any other roles added to them as they will return true no matter what role or roles you check they have. If you want to use this, but still do something based on someone have a a specific role, you will need to test for botht he role and for the :super_user role. For example:
+If config.super_user is not set to nil and is set to a roles identifies as a symbol, then all of the has methods will always return true for a user with this role. For example, if you have a :super_user role, and assign it to a user, that user does not need any other roles added to them as they will return true no matter what role or roles you check they have. If you want to use this, but still do something based on someone having a specific role, you will need to test for both the role and for the :super_user role. For example:
 
 ```ruby
 if user.has_role? :manager
