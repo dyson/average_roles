@@ -78,13 +78,13 @@ end
 Add the concerns to the role and object models:
 
 ```ruby
-class User < ActiveRecord::Base
-  include AverageRoles::UserConcern
+class Role < ActiveRecord::Base
+  include AverageRoles::RoleConcern
 end
 ```
 ```ruby
-class Role < ActiveRecord::Base
-  include AverageRoles::RoleConcern
+class User < ActiveRecord::Base
+  include AverageRoles::UserConcern
 end
 ```
 
@@ -113,6 +113,20 @@ Methods are generated based on the role model configured. In the example above t
 * user.**has_role_by_descendents?** (role) - Check if object has role or a ancestors ancestor role (can be a role identifier as a symbol, a role id, or a role object and returns True/False)
 * user.**has_roles_by_descendents?** (roles) - Check if object has all roles or at least a ancestor of each role (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False
 * user.**has_at_least_one_role_by_descendents?** (role) - Check if object has at least one role or at least one ancestor of one role (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False)
+
+#### Super User
+
+If config.super_user is not set to nil and is set to a roles identifies as a symbol, then all of the has methods will always return true for a user with this role. For example, if you have a :super_user role, and assign it to a user, that user does not need any other roles added to them as they will return true no matter what role or roles you check they have. If you want to use this, but still do something based on someone have a a specific role, you will need to test for botht he role and for the :super_user role. For example:
+
+```ruby
+if user.has_role? :manager
+  # True for managers and super users
+end
+
+if user.has_role?(:manager) and not user.has_role?(AverageRoles.configuration.super_user)
+  # True for managers only
+end
+```
 
 #### License
 
