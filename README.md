@@ -1,6 +1,6 @@
 ### Average Roles: Rails 4 roles based on a tree structure.
 
-Add roles to models using postgres_tree. It's average because it doesn't do much else..
+Add roles to models with tree structure via postgres_tree. It's average because it doesn't do much else.
 
 [![Build Status](https://travis-ci.org/dyson/average_roles.svg?branch=master)](https://travis-ci.org/dyson/average_roles) [![Coverage Status](https://img.shields.io/coveralls/dyson/average_roles.svg)](https://coveralls.io/r/dyson/average_roles?branch=master) [![Gem Version](https://badge.fury.io/rb/average_roles.svg)](http://badge.fury.io/rb/average_roles)
 
@@ -30,96 +30,89 @@ gem 'average_roles', '~> 0.0.1'
 
 ##### Migration
 
-Add a parent_id field to your model via a migration. For example, a roles table:
+Create a table for the roles, a table for object that have roles, and a join table. For example:
 
 ```ruby
-class AddParentIdToRoles < ActiveRecord::Migration
+class CreateRoles < ActiveRecord::Migration
   def change
-    change_table :roles do |t|
+    create_table :roles do |t|
+      t.string :name
+      t.string :identifier
+      t.string :description
       t.integer :parent_id
-    end
+      t.boolean :active
 
-    add_index :roles, [:parent_id]
+      t.timestamps
+    end
   end
+
+  add_index :roles, [:identifier, :parent_id, :active]
+end
+```
+```ruby
+class CreateUsers < ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+      t.string :name
+      ...
+      t.timestamps
+    end
+  end
+end
+```
+```ruby
+class CreateRolesUsers < ActiveRecord::Migration
+  def change
+    create_table :roles_users do |t|
+      t.integer :role_id, null: false
+      t.integer :user_id, null: false
+    end
+  end
+
+  add_index :roles_users, [:role_id, :user_id]
 end
 ```
 
 ##### Model
 
+Add the concerns to the role and object models:
+
+```ruby
+class User < ActiveRecord::Base
+  include AverageRoles::UserConcern
+end
+```
 ```ruby
 class Role < ActiveRecord::Base
-
-  include PostgresTree::ActiveRecordConcern
-
-  # Associations for tree
-  belongs_to :parent, class_name: "Role"
-  has_many :children, class_name: "Role", foreign_key: 'parent_id'
-
+  include AverageRoles::RoleConcern
 end
+```
 
+##### Initializer
+
+Add an initialiazer if you want to use different values than the defaults. The default values are shown below.
+
+```ruby
+AverageRoles.configure do |config|
+  config.user_model = 'User'
+  config.role_model = 'Role'
+  config.super_user = nil # or role identifier as symbol, eg: :super_user
+end
 ```
 
 #### Methods
 
-* role.**ancestors** - Get all ancestors.
-* role.**self_and_ancestors** - Get all ancestors and include self in the returned result.
-* role.**descendents** - Get all descendents.
-* role.**self_and_descendents** - Get all descendents and include self in the returned result.
+Methods are generated based on the role model configured. In the example above this is simply 'Role'. For all of the methods below, replace role with whatever model name you are using being careful of pluralisation.
 
-There is also an **_include?** method missing which returns **true** of **false**:
+* user.**roles_as** (type) - Get roles of object by type (:identifiers, :ids, :objects)
+* user.**has_role?** (role) - Check if object has role (can be a role identifier as a symbol, a role id, or a role object and returns True/False)
+* user.**has_roles?** (roles) - Check if object has all roles (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False)
+* user.**has_at_least_one_?** (roles) - Check if object has at least one role (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False)
 
-* role.**ancestors_include?** (object of same type)
-* role.**self_and_ancestors_include?** (object of same type)
-* role.**descendents_include?** (object of same type)
-* role.**self_and_descendents_include?** (object of same type)
-
-Using the self referencing belongs and has_many as above, you also get get the parent and children:
-
-* role.**parent**
-* role.**children**
-* role.**children_include?**
-
-#### Scopes
-
-A named scope called tree_roots is also added to the model to obtain all root records:
-
-```ruby
-root_roles = Role.tree_roots
-```
-
-#### Usage example
-
-```ruby
-irb(main):001:0> parent = Role.find 2
-=> #<Role id: 2, name: "Parent", parent_id: 1>
-
-irb(main):002:0> parent.ancestors
-=> [#<Role id: 1, name: "Grandparent", parent_id: nil>]
-
-irb(main):003:0> parent.self_and_ancestors
-=> #<ActiveRecord::Relation [#<Role id: 1, name: "Grandparent", parent_id: nil>, #<Role id: 2, name: "Parent", parent_id: 1>]>
-
-irb(main):004:0> parent.descendents
-=> [#<Role id: 3, name: "Child", parent_id: 2>]
-
-irb(main):005:0> parent.self_and_descendents
-=> #<ActiveRecord::Relation [#<Role id: 2, name: "Parent", parent_id: 1>, #<Role id: 3, name: "Child", parent_id: 2>]>
-
-irb(main):006:0> child = Role.find 3
-=> #<Role id: 3, name: "Child", parent_id: 2>
-
-irb(main):007:0> parent.descendents_include? child
-=> true
-
-irb(main):008:0> parent.self_and_descendents_include? child
-=> true
-
-irb(main):009:0> parent.ancestors_include? child
-=> false
-
-irb(main):010:0> parent.self_and_ancestors_include? child
-=> false
-```
+* user.**roles_and_descendents_as** (type)- Get roles and descendent roles of object by type (:identifiers, :ids, :objects)
+* user.**has_role_by_descendents?** (role) - Check if object has role or a ancestors ancestor role (can be a role identifier as a symbol, a role id, or a role object and returns True/False)
+* user.**has_roles_by_descendents?** (roles) - Check if object has all roles or at least a ancestor of each role (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False
+* user.**has_at_least_one_role_by_descendents?** (role) - Check if object has at least one role or at least one ancestor of one role (can be a list of role identifiers as a symbol, a list of role ids, or a list of role objects and returns True/False)
 
 #### License
 
